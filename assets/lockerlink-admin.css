@@ -35,8 +35,9 @@
 }
 
 .lockerlink-logo {
-    height: 40px;
+    height: 60px;
     width: auto;
+    filter: brightness(0) invert(1);
 }
 
 .lockerlink-connection-status {
