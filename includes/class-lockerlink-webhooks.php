@@ -3,7 +3,7 @@
  * LockerLink Webhook Auto-Registration.
  *
  * Creates order.created and order.updated webhooks pointing to the LockerLink backend.
- * Filters delivery so only orders with local_pickup shipping reach LockerLink.
+ * Filters delivery so only orders with lockerlink shipping reach LockerLink.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -16,6 +16,11 @@ class LockerLink_Webhooks {
     const OPTION_KEY = 'lockerlink_webhook_ids';
 
     /**
+     * Webhook name prefix used to identify our webhooks.
+     */
+    const NAME_PREFIX = 'LockerLink - ';
+
+    /**
      * Initialize webhook hooks.
      */
     public static function init() {
@@ -24,6 +29,7 @@ class LockerLink_Webhooks {
 
     /**
      * Create both webhooks programmatically.
+     * Always cleans up existing LockerLink webhooks first to prevent duplicates.
      */
     public static function create_webhooks() {
         $delivery_url = rtrim( get_option( 'lockerlink_webhook_url', '' ), '/' );
@@ -33,12 +39,15 @@ class LockerLink_Webhooks {
             return;
         }
 
-        $topics     = array( 'order.created', 'order.updated' );
+        // Always clean up any existing LockerLink webhooks first.
+        self::delete_all_lockerlink_webhooks();
+
+        $topics      = array( 'order.created', 'order.updated' );
         $webhook_ids = array();
 
         foreach ( $topics as $topic ) {
             $webhook = new WC_Webhook();
-            $webhook->set_name( 'LockerLink - ' . $topic );
+            $webhook->set_name( self::NAME_PREFIX . $topic );
             $webhook->set_topic( $topic );
             $webhook->set_delivery_url( $delivery_url );
             $webhook->set_secret( $api_key );
@@ -55,27 +64,39 @@ class LockerLink_Webhooks {
     }
 
     /**
-     * Delete webhooks created by this plugin.
+     * Delete webhooks on plugin deactivation.
      */
     public static function delete_webhooks() {
-        $webhook_ids = get_option( self::OPTION_KEY, array() );
-
-        if ( ! is_array( $webhook_ids ) ) {
-            return;
-        }
-
-        foreach ( $webhook_ids as $id ) {
-            $webhook = wc_get_webhook( $id );
-            if ( $webhook ) {
-                $webhook->delete( true );
-            }
-        }
-
+        self::delete_all_lockerlink_webhooks();
         delete_option( self::OPTION_KEY );
     }
 
     /**
-     * Filter webhook delivery — only send to LockerLink if the order uses local_pickup.
+     * Find and delete ALL LockerLink webhooks by name prefix.
+     * This catches orphaned webhooks from previous installs/updates.
+     */
+    private static function delete_all_lockerlink_webhooks() {
+        $data_store  = WC_Data_Store::load( 'webhook' );
+        $webhook_ids = $data_store->search_webhooks( array(
+            'limit'  => 100,
+            'status' => 'all',
+        ) );
+
+        foreach ( $webhook_ids as $id ) {
+            $webhook = wc_get_webhook( $id );
+            if ( ! $webhook ) {
+                continue;
+            }
+
+            // Match by name prefix.
+            if ( strpos( $webhook->get_name(), self::NAME_PREFIX ) === 0 ) {
+                $webhook->delete( true );
+            }
+        }
+    }
+
+    /**
+     * Filter webhook delivery — only send to LockerLink if the order uses lockerlink shipping.
      *
      * @param bool       $should_deliver Whether the webhook should deliver.
      * @param WC_Webhook $webhook        The webhook instance.
