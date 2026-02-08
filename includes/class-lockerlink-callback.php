@@ -116,42 +116,58 @@ class LockerLink_Callback {
 
         $order->save();
 
-        // Add customer-visible order note based on status.
-        $note            = '';
-        $is_customer_note = true;
-
+        // Add order notes and trigger emails based on status.
         switch ( $status ) {
             case 'assigned':
-            case 'loaded':
-            case 'notified':
-                $note = sprintf(
-                    'Your order is ready for locker pickup! Locker: %s, Compartment: %s. Pick up here: %s',
-                    $locker_name,
-                    $compartment_label,
-                    $pickup_url
+                $order->add_order_note(
+                    'LockerLink: Order assigned.' . self::format_details( $locker_name, $compartment_label ),
+                    false // Internal note, no customer email.
                 );
                 break;
 
+            case 'loaded':
+                // Trigger the custom pickup-ready email.
+                do_action( 'lockerlink_order_pickup_ready', $order_id, $locker_name, $compartment_label, $pickup_url );
+                $order->add_order_note(
+                    'LockerLink: Order loaded, pickup email sent.' . self::format_details( $locker_name, $compartment_label ),
+                    false
+                );
+                break;
+
+            case 'notified':
+                $order->add_order_note( 'LockerLink: Customer notified about pickup.', false );
+                break;
+
             case 'picked_up':
-                $note = 'Order picked up from locker.';
+                $order->add_order_note( 'LockerLink: Order picked up from locker.', false );
                 break;
 
             case 'cancelled':
-                $note = 'Locker assignment cancelled.';
+                $order->add_order_note( 'LockerLink: Locker assignment cancelled.', false );
                 break;
 
             default:
-                $note = sprintf( 'LockerLink status updated: %s', $status );
+                $order->add_order_note( sprintf( 'LockerLink status updated: %s', $status ), false );
                 break;
-        }
-
-        if ( ! empty( $note ) ) {
-            $order->add_order_note( $note, $is_customer_note );
         }
 
         return new WP_REST_Response( array(
             'success' => true,
             'message' => 'Assignment update received.',
         ), 200 );
+    }
+
+    /**
+     * Build a details string from available fields, skipping empty ones.
+     */
+    private static function format_details( $locker_name, $compartment_label ) {
+        $parts = array();
+        if ( ! empty( $locker_name ) ) {
+            $parts[] = 'Locker: ' . $locker_name;
+        }
+        if ( ! empty( $compartment_label ) ) {
+            $parts[] = 'Compartment: ' . $compartment_label;
+        }
+        return ! empty( $parts ) ? ' ' . implode( ', ', $parts ) . '.' : '';
     }
 }

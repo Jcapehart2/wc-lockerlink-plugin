@@ -3,7 +3,7 @@
  * Plugin Name: LockerLink
  * Plugin URI: https://joinlockerlink.com
  * Description: Connect your store to LockerLink smart locker pickup. Adds locker pickup shipping, auto-registers webhooks, and syncs assignment updates.
- * Version: 1.1.3
+ * Version: 1.2.0
  * Author: LockerLink
  * Author URI: https://joinlockerlink.com
  * License: GPL-2.0-or-later
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'LOCKERLINK_VERSION', '1.1.3' );
+define( 'LOCKERLINK_VERSION', '1.2.0' );
 define( 'LOCKERLINK_PLUGIN_FILE', __FILE__ );
 define( 'LOCKERLINK_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LOCKERLINK_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -169,3 +169,13 @@ function lockerlink_declare_hpos_compatibility() {
     }
 }
 add_action( 'before_woocommerce_init', 'lockerlink_declare_hpos_compatibility' );
+
+/**
+ * Register the custom pickup-ready email with WooCommerce.
+ */
+function lockerlink_register_emails( $email_classes ) {
+    require_once LOCKERLINK_PLUGIN_DIR . 'includes/class-lockerlink-email-pickup-ready.php';
+    $email_classes['LockerLink_Email_Pickup_Ready'] = new LockerLink_Email_Pickup_Ready();
+    return $email_classes;
+}
+add_filter( 'woocommerce_email_classes', 'lockerlink_register_emails' );
