@@ -66,6 +66,7 @@ class LockerLink_Updater {
                 'new_version' => $latest_version,
                 'url'         => $release['html_url'],
                 'package'     => $release['zipball_url'],
+                'tested'      => '6.9',
                 'icons'       => array(
                     'default' => LOCKERLINK_PLUGIN_URL . 'assets/lockerlink-logo.png',
                 ),
@@ -92,26 +93,27 @@ class LockerLink_Updater {
             return $result;
         }
 
-        $release = self::get_latest_release();
-        if ( ! $release ) {
-            return $result;
-        }
-
-        $latest_version = ltrim( $release['tag_name'], 'v' );
+        $release        = self::get_latest_release();
+        $latest_version = $release ? ltrim( $release['tag_name'], 'v' ) : LOCKERLINK_VERSION;
+        $download_link  = $release ? $release['zipball_url'] : '';
+        $changelog      = $release && ! empty( $release['body'] ) ? nl2br( esc_html( $release['body'] ) ) : 'No changelog available.';
 
         return (object) array(
             'name'            => 'LockerLink for WooCommerce',
             'slug'            => 'woocommerce-lockerlink',
             'version'         => $latest_version,
             'author'          => '<a href="https://joinlockerlink.com">LockerLink</a>',
+            'author_profile'  => 'https://joinlockerlink.com',
             'homepage'        => 'https://joinlockerlink.com',
             'requires'        => '6.0',
-            'tested'          => '6.7',
+            'tested'          => '6.9',
             'requires_php'    => '7.4',
-            'download_link'   => $release['zipball_url'],
+            'download_link'   => $download_link,
+            'trunk'           => $download_link,
+            'last_updated'    => $release ? date( 'Y-m-d' ) : '',
             'sections'        => array(
-                'description'  => 'Connect your WooCommerce store to LockerLink smart locker pickup.',
-                'changelog'    => isset( $release['body'] ) ? nl2br( esc_html( $release['body'] ) ) : '',
+                'description'  => 'Connect your WooCommerce store to LockerLink smart locker pickup. Adds locker pickup shipping, auto-registers webhooks, and syncs assignment updates.',
+                'changelog'    => $changelog,
             ),
             'banners'         => array(),
         );
@@ -124,8 +126,12 @@ class LockerLink_Updater {
      */
     private static function get_latest_release() {
         $cached = get_transient( self::TRANSIENT_KEY );
-        if ( $cached !== false ) {
+        if ( is_array( $cached ) ) {
             return $cached;
+        }
+        // Transient value of 'error' means we recently failed — don't retry yet.
+        if ( $cached === 'error' ) {
+            return false;
         }
 
         $url = sprintf( 'https://api.github.com/repos/%s/releases/latest', self::GITHUB_REPO );
@@ -140,12 +146,13 @@ class LockerLink_Updater {
 
         if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
             // Cache the failure briefly to avoid hammering GitHub.
-            set_transient( self::TRANSIENT_KEY, false, 600 );
+            set_transient( self::TRANSIENT_KEY, 'error', 600 );
             return false;
         }
 
         $body = json_decode( wp_remote_retrieve_body( $response ), true );
         if ( empty( $body['tag_name'] ) ) {
+            set_transient( self::TRANSIENT_KEY, 'error', 600 );
             return false;
         }
 
