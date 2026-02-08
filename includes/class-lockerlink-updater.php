@@ -70,7 +70,7 @@ class LockerLink_Updater {
                 'plugin'      => $plugin_slug,
                 'new_version' => $latest_version,
                 'url'         => $release['html_url'],
-                'package'     => $release['zipball_url'],
+                'package'     => $release['package_url'],
                 'tested'      => '6.9',
                 'icons'       => array(
                     'default' => LOCKERLINK_PLUGIN_URL . 'assets/lockerlink-logo.png',
@@ -100,7 +100,7 @@ class LockerLink_Updater {
 
         $release        = self::get_latest_release();
         $latest_version = $release ? ltrim( $release['tag_name'], 'v' ) : LOCKERLINK_VERSION;
-        $download_link  = $release ? $release['zipball_url'] : '';
+        $download_link  = $release ? $release['package_url'] : '';
         $changelog      = $release && ! empty( $release['body'] ) ? nl2br( esc_html( $release['body'] ) ) : 'No changelog available.';
 
         return (object) array(
@@ -161,11 +161,23 @@ class LockerLink_Updater {
             return false;
         }
 
+        // Find the uploaded .zip release asset (correct directory structure).
+        // Fall back to zipball_url if no asset is attached.
+        $package_url = $body['zipball_url'];
+        if ( ! empty( $body['assets'] ) && is_array( $body['assets'] ) ) {
+            foreach ( $body['assets'] as $asset ) {
+                if ( isset( $asset['name'] ) && substr( $asset['name'], -4 ) === '.zip' ) {
+                    $package_url = $asset['browser_download_url'];
+                    break;
+                }
+            }
+        }
+
         $release = array(
-            'tag_name'   => $body['tag_name'],
-            'html_url'   => $body['html_url'],
-            'body'       => isset( $body['body'] ) ? $body['body'] : '',
-            'zipball_url' => $body['zipball_url'],
+            'tag_name'    => $body['tag_name'],
+            'html_url'    => $body['html_url'],
+            'body'        => isset( $body['body'] ) ? $body['body'] : '',
+            'package_url' => $package_url,
         );
 
         set_transient( self::TRANSIENT_KEY, $release, self::CHECK_INTERVAL );
