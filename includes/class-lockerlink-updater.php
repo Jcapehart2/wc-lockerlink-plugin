@@ -104,7 +104,7 @@ class LockerLink_Updater {
         $changelog      = $release && ! empty( $release['body'] ) ? nl2br( esc_html( $release['body'] ) ) : 'No changelog available.';
 
         return (object) array(
-            'name'            => 'LockerLink for WooCommerce',
+            'name'            => 'LockerLink',
             'slug'            => 'woocommerce-lockerlink',
             'version'         => $latest_version,
             'author'          => '<a href="https://joinlockerlink.com">LockerLink</a>',

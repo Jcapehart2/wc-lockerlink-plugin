@@ -78,8 +78,7 @@ class LockerLink_Webhooks {
     private static function delete_all_lockerlink_webhooks() {
         $data_store  = WC_Data_Store::load( 'webhook' );
         $webhook_ids = $data_store->search_webhooks( array(
-            'limit'  => 100,
-            'status' => 'all',
+            'limit' => 100,
         ) );
 
         foreach ( $webhook_ids as $id ) {
