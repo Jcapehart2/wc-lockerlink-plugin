@@ -33,6 +33,11 @@ class LockerLink_Updater {
         add_filter( 'pre_set_site_transient_update_plugins', array( __CLASS__, 'check_for_update' ) );
         add_filter( 'plugins_api', array( __CLASS__, 'plugin_info' ), 20, 3 );
         add_action( 'upgrader_process_complete', array( __CLASS__, 'clear_cache' ), 10, 2 );
+
+        // Clear our cache when WordPress force-checks for updates (Dashboard > Updates > Check again).
+        if ( is_admin() && isset( $_GET['force-check'] ) ) {
+            delete_transient( self::TRANSIENT_KEY );
+        }
     }
 
     /**
