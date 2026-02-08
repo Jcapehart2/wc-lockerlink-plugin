@@ -126,19 +126,18 @@ class LockerLink_Callback {
                 break;
 
             case 'loaded':
-                $order->add_order_note(
-                    'LockerLink: Order loaded into locker.' . self::format_details( $locker_name, $compartment_label ),
-                    false
-                );
-                break;
-
-            case 'notified':
                 // Trigger the custom pickup-ready email.
                 do_action( 'lockerlink_order_pickup_ready', $order_id, $locker_name, $compartment_label, $pickup_url );
                 $order->add_order_note(
-                    'LockerLink: Pickup email sent to customer.' . self::format_details( $locker_name, $compartment_label ),
+                    'LockerLink: Order loaded, pickup email sent.' . self::format_details( $locker_name, $compartment_label ),
                     false
                 );
+                // Notify the backend that the customer was emailed.
+                self::notify_backend( $order_id, 'customer_notified' );
+                break;
+
+            case 'notified':
+                $order->add_order_note( 'LockerLink: Customer notified about pickup.', false );
                 break;
 
             case 'picked_up':
@@ -158,6 +157,41 @@ class LockerLink_Callback {
             'success' => true,
             'message' => 'Assignment update received.',
         ), 200 );
+    }
+
+    /**
+     * Notify the LockerLink backend of a plugin event.
+     *
+     * @param int    $order_id The WooCommerce order ID.
+     * @param string $event    The event name (e.g. 'customer_notified').
+     */
+    private static function notify_backend( $order_id, $event ) {
+        $webhook_url = get_option( 'lockerlink_webhook_url', '' );
+        $api_key     = get_option( 'lockerlink_api_key', '' );
+
+        if ( empty( $webhook_url ) || empty( $api_key ) ) {
+            return;
+        }
+
+        // Parse webhook URL: {baseUrl}/api/webhooks/woocommerce/{apiId}
+        // Build callback URL: {baseUrl}/api/webhooks/callback/{apiId}
+        $callback_url = preg_replace( '#/api/webhooks/woocommerce/([^/]+)$#', '/api/webhooks/callback/$1', $webhook_url );
+
+        if ( $callback_url === $webhook_url ) {
+            return; // URL pattern didn't match, skip.
+        }
+
+        $body      = wp_json_encode( array( 'orderId' => $order_id, 'event' => $event ) );
+        $signature = base64_encode( hash_hmac( 'sha256', $body, $api_key, true ) );
+
+        wp_remote_post( $callback_url, array(
+            'headers' => array(
+                'Content-Type'          => 'application/json',
+                'x-lockerlink-signature' => $signature,
+            ),
+            'body'    => $body,
+            'timeout' => 10,
+        ) );
     }
 
     /**
