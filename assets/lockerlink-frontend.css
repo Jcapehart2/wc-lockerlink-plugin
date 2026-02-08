@@ -1,0 +1,86 @@
+/**
+ * LockerLink Frontend Styles — Customer-facing order details.
+ *
+ * Design System:
+ * Primary: #00A8E8 (electric blue)
+ * Secondary: #0077B6 (ocean blue)
+ * Dark: #0D1B2A (navy), #1B2D45 (deep blue)
+ * Border radius: 8px buttons, 16px cards
+ */
+
+.lockerlink-customer-pickup {
+    margin-top: 32px;
+}
+
+.lockerlink-customer-pickup h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0D1B2A;
+    margin-bottom: 16px;
+}
+
+.lockerlink-pickup-card {
+    background: #fff;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(13, 27, 42, 0.06);
+}
+
+.lockerlink-pickup-details {
+    margin-bottom: 20px;
+}
+
+.lockerlink-pickup-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #F0F4F8;
+}
+
+.lockerlink-pickup-row:last-child {
+    border-bottom: none;
+}
+
+.lockerlink-pickup-label {
+    color: #5A6A7D;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.lockerlink-pickup-value {
+    color: #0D1B2A;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.lockerlink-pickup-action {
+    text-align: center;
+}
+
+.lockerlink-pickup-btn {
+    display: inline-block;
+    background: #00A8E8;
+    color: #fff !important;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 32px;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+    letter-spacing: 0.02em;
+}
+
+.lockerlink-pickup-btn:hover {
+    background: #0077B6;
+    color: #fff !important;
+    transform: translateY(-1px);
+    text-decoration: none !important;
+}
+
+.lockerlink-pickup-btn:active {
+    transform: translateY(0);
+}

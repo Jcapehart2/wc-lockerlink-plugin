@@ -1,0 +1,346 @@
+/**
+ * LockerLink Admin Styles
+ *
+ * Design System:
+ * Primary: #00A8E8 (electric blue)
+ * Secondary: #0077B6 (ocean blue)
+ * Dark: #0D1B2A (navy), #1B2D45 (deep blue)
+ * Success: #00D68F, Error: #FF4D4F, Warning: #FFAA00
+ * Neutral: #5A6A7D (slate gray), #F0F4F8 (light gray)
+ * Border radius: 8px buttons, 16px cards, 10px inputs, 20px badges
+ */
+
+/* =============================================
+   Settings Page
+   ============================================= */
+
+.lockerlink-settings-wrap {
+    max-width: 720px;
+    margin: 20px 0;
+}
+
+.lockerlink-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #0D1B2A 0%, #1B2D45 100%);
+    padding: 24px 32px;
+    border-radius: 16px 16px 0 0;
+}
+
+.lockerlink-logo-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.lockerlink-logo {
+    height: 40px;
+    width: auto;
+}
+
+.lockerlink-connection-status {
+    display: flex;
+    align-items: center;
+}
+
+.lockerlink-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.lockerlink-status-connected {
+    background: rgba(0, 214, 143, 0.15);
+    color: #00D68F;
+}
+
+.lockerlink-status-connected::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00D68F;
+    display: inline-block;
+}
+
+.lockerlink-status-disconnected {
+    background: rgba(90, 106, 125, 0.2);
+    color: #8899AA;
+}
+
+.lockerlink-status-disconnected::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #8899AA;
+    display: inline-block;
+}
+
+.lockerlink-settings-body {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    padding: 24px 32px 32px;
+}
+
+/* Form fields */
+.lockerlink-form-table th {
+    padding: 16px 12px 16px 0;
+    color: #0D1B2A;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.lockerlink-form-table td {
+    padding: 16px 0;
+}
+
+.lockerlink-input {
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    width: 100% !important;
+    max-width: 420px !important;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.lockerlink-input:focus {
+    border-color: #00A8E8 !important;
+    box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.12) !important;
+    outline: none !important;
+}
+
+.lockerlink-input::placeholder {
+    color: #A0AEC0;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Toggle switch */
+.lockerlink-toggle {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+}
+
+.lockerlink-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.lockerlink-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #CBD5E0;
+    border-radius: 26px;
+    transition: background 0.25s ease;
+}
+
+.lockerlink-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.lockerlink-toggle input:checked + .lockerlink-toggle-slider {
+    background: #00A8E8;
+}
+
+.lockerlink-toggle input:checked + .lockerlink-toggle-slider::before {
+    transform: translateX(22px);
+}
+
+/* Actions row */
+.lockerlink-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 8px;
+    padding-top: 20px;
+    border-top: 1px solid #F0F4F8;
+}
+
+.lockerlink-btn-secondary {
+    background: #F0F4F8 !important;
+    color: #0D1B2A !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    padding: 8px 20px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    transition: all 0.2s ease !important;
+}
+
+.lockerlink-btn-secondary:hover:not(:disabled) {
+    background: #E2E8F0 !important;
+    border-color: #CBD5E0 !important;
+}
+
+.lockerlink-btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.lockerlink-test-success {
+    color: #00D68F;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.lockerlink-test-error {
+    color: #FF4D4F;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* =============================================
+   Order Meta Box (Admin)
+   ============================================= */
+
+#lockerlink-pickup-info .inside {
+    padding: 0;
+}
+
+.lockerlink-meta-box {
+    padding: 16px;
+}
+
+.lockerlink-meta-status {
+    margin-bottom: 16px;
+}
+
+.lockerlink-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.lockerlink-badge-awaiting {
+    background: rgba(255, 170, 0, 0.12);
+    color: #CC8800;
+}
+
+.lockerlink-badge-assigned {
+    background: rgba(0, 168, 232, 0.12);
+    color: #0077B6;
+}
+
+.lockerlink-badge-loaded {
+    background: rgba(0, 168, 232, 0.18);
+    color: #00A8E8;
+}
+
+.lockerlink-badge-notified {
+    background: rgba(0, 214, 143, 0.12);
+    color: #00B377;
+}
+
+.lockerlink-badge-unlocked {
+    background: rgba(0, 214, 143, 0.18);
+    color: #00D68F;
+}
+
+.lockerlink-badge-picked-up {
+    background: rgba(0, 214, 143, 0.15);
+    color: #00D68F;
+}
+
+.lockerlink-badge-cancelled {
+    background: rgba(255, 77, 79, 0.12);
+    color: #FF4D4F;
+}
+
+.lockerlink-badge-default {
+    background: rgba(90, 106, 125, 0.12);
+    color: #5A6A7D;
+}
+
+.lockerlink-meta-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+}
+
+.lockerlink-meta-table td {
+    padding: 8px 0;
+    font-size: 13px;
+    border-bottom: 1px solid #F0F4F8;
+    color: #1B2D45;
+}
+
+.lockerlink-meta-label {
+    color: #5A6A7D !important;
+    font-weight: 600;
+    width: 110px;
+}
+
+.lockerlink-meta-pickup-link {
+    margin-top: 4px;
+}
+
+.lockerlink-btn-primary {
+    background: #00A8E8 !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 8px 20px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    transition: background 0.2s ease !important;
+    display: inline-block;
+}
+
+.lockerlink-btn-primary:hover {
+    background: #0077B6 !important;
+    color: #fff !important;
+}
+
+.lockerlink-meta-note {
+    color: #5A6A7D;
+    font-size: 13px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* =============================================
+   WooCommerce Settings Tab Header Override
+   ============================================= */
+
+.woocommerce nav.wc-nav-tab-wrapper a.nav-tab[href*="tab=lockerlink"] {
+    font-weight: 600;
+}
+
+.woocommerce nav.wc-nav-tab-wrapper a.nav-tab-active[href*="tab=lockerlink"] {
+    border-bottom-color: #00A8E8;
+    color: #00A8E8;
+}
