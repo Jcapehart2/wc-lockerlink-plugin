@@ -58,10 +58,10 @@ class LockerLink_Order_Meta {
         $pickup_url  = $order->get_meta( '_lockerlink_pickup_url' );
 
         if ( empty( $status ) ) {
-            // Check if this is a local_pickup order awaiting assignment.
+            // Check if this is a lockerlink order awaiting assignment.
             $is_locker_order = false;
             foreach ( $order->get_shipping_methods() as $method ) {
-                if ( $method->get_method_id() === 'local_pickup' ) {
+                if ( $method->get_method_id() === 'lockerlink' ) {
                     $is_locker_order = true;
                     break;
                 }

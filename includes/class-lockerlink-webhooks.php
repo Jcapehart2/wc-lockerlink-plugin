@@ -95,10 +95,10 @@ class LockerLink_Webhooks {
             return false;
         }
 
-        // Check if any shipping line uses local_pickup.
+        // Check if any shipping line uses lockerlink.
         $shipping_methods = $order->get_shipping_methods();
         foreach ( $shipping_methods as $method ) {
-            if ( $method->get_method_id() === 'local_pickup' ) {
+            if ( $method->get_method_id() === 'lockerlink' ) {
                 return true;
             }
         }

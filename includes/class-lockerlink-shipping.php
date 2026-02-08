@@ -2,7 +2,7 @@
 /**
  * LockerLink Shipping Method — Locker Pickup.
  *
- * Uses method_id "local_pickup" so LockerLink's backend filter matches.
+ * Uses method_id "lockerlink" to avoid conflicts with WooCommerce's built-in Local Pickup.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -18,7 +18,7 @@ function lockerlink_init_shipping_method() {
          * Constructor.
          */
         public function __construct( $instance_id = 0 ) {
-            $this->id                 = 'local_pickup';
+            $this->id                 = 'lockerlink';
             $this->instance_id        = absint( $instance_id );
             $this->method_title       = __( 'Locker Pickup (LockerLink)', 'lockerlink' );
             $this->method_description = __( 'Allow customers to pick up orders from a LockerLink smart locker.', 'lockerlink' );
