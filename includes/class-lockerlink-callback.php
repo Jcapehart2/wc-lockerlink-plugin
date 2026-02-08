@@ -128,12 +128,20 @@ class LockerLink_Callback {
             case 'loaded':
                 // Trigger the custom pickup-ready email.
                 do_action( 'lockerlink_order_pickup_ready', $order_id, $locker_name, $compartment_label, $pickup_url );
+                $order->set_status( 'll-awaiting-pickup', 'LockerLink: Order loaded, awaiting customer pickup.' );
                 $order->add_order_note(
-                    'LockerLink: Order loaded, pickup email sent.' . self::format_details( $locker_name, $compartment_label ),
+                    'LockerLink: Pickup email sent.' . self::format_details( $locker_name, $compartment_label ),
                     false
                 );
+                $order->save();
                 // Notify the backend that the customer was emailed.
                 self::notify_backend( $order_id, 'customer_notified' );
+                break;
+
+            case 'unlocked':
+                $order->set_status( 'completed', 'LockerLink: Order picked up by customer.' );
+                $order->add_order_note( 'LockerLink: Locker unlocked, order completed.', false );
+                $order->save();
                 break;
 
             case 'notified':

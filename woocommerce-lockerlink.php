@@ -3,7 +3,7 @@
  * Plugin Name: LockerLink
  * Plugin URI: https://joinlockerlink.com
  * Description: Connect your store to LockerLink smart locker pickup. Adds locker pickup shipping, auto-registers webhooks, and syncs assignment updates.
- * Version: 1.3.0
+ * Version: 1.4.0
  * Author: LockerLink
  * Author URI: https://joinlockerlink.com
  * License: GPL-2.0-or-later
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'LOCKERLINK_VERSION', '1.3.0' );
+define( 'LOCKERLINK_VERSION', '1.4.0' );
 define( 'LOCKERLINK_PLUGIN_FILE', __FILE__ );
 define( 'LOCKERLINK_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LOCKERLINK_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -169,6 +169,41 @@ function lockerlink_declare_hpos_compatibility() {
     }
 }
 add_action( 'before_woocommerce_init', 'lockerlink_declare_hpos_compatibility' );
+
+/**
+ * Register custom "Awaiting Pickup" order status.
+ */
+function lockerlink_register_order_status() {
+    register_post_status( 'wc-ll-awaiting-pickup', array(
+        'label'                     => _x( 'Awaiting Pickup', 'Order status', 'lockerlink' ),
+        'public'                    => true,
+        'exclude_from_search'       => false,
+        'show_in_admin_all_list'    => true,
+        'show_in_admin_status_list' => true,
+        /* translators: %s: number of orders */
+        'label_count'               => _n_noop(
+            'Awaiting Pickup <span class="count">(%s)</span>',
+            'Awaiting Pickup <span class="count">(%s)</span>',
+            'lockerlink'
+        ),
+    ) );
+}
+add_action( 'init', 'lockerlink_register_order_status' );
+
+/**
+ * Add "Awaiting Pickup" to the WooCommerce order status list.
+ */
+function lockerlink_add_order_status( $order_statuses ) {
+    $new_statuses = array();
+    foreach ( $order_statuses as $key => $status ) {
+        $new_statuses[ $key ] = $status;
+        if ( 'wc-processing' === $key ) {
+            $new_statuses['wc-ll-awaiting-pickup'] = _x( 'Awaiting Pickup', 'Order status', 'lockerlink' );
+        }
+    }
+    return $new_statuses;
+}
+add_filter( 'wc_order_statuses', 'lockerlink_add_order_status' );
 
 /**
  * Register the custom pickup-ready email with WooCommerce.
