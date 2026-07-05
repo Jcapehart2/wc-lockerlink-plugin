@@ -109,6 +109,11 @@ class LockerLink_Webhooks {
             return $should_deliver;
         }
 
+        // Never deliver LockerLink webhooks while the integration is disabled.
+        if ( class_exists( 'LockerLink_Settings' ) && ! LockerLink_Settings::is_active() ) {
+            return false;
+        }
+
         // Get the order.
         $order = wc_get_order( $arg );
         if ( ! $order ) {

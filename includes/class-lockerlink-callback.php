@@ -35,6 +35,15 @@ class LockerLink_Callback {
      * @return bool|WP_Error
      */
     public static function verify_signature( $request ) {
+        // Reject inbound callbacks while the integration is disabled.
+        if ( class_exists( 'LockerLink_Settings' ) && ! LockerLink_Settings::is_active() ) {
+            return new WP_Error(
+                'lockerlink_disabled',
+                'LockerLink integration is disabled.',
+                array( 'status' => 403 )
+            );
+        }
+
         $signature = $request->get_header( 'x-lockerlink-signature' );
         if ( empty( $signature ) ) {
             return new WP_Error(
@@ -128,7 +137,7 @@ class LockerLink_Callback {
             case 'loaded':
                 // Trigger the custom pickup-ready email.
                 do_action( 'lockerlink_order_pickup_ready', $order_id, $locker_name, $compartment_label, $pickup_url );
-                $order->set_status( 'll-awaiting-pickup', 'LockerLink: Order loaded, awaiting customer pickup.' );
+                $order->set_status( 'll-pickup', 'LockerLink: Order loaded, awaiting customer pickup.' );
                 $order->add_order_note(
                     'LockerLink: Pickup email sent.' . self::format_details( $locker_name, $compartment_label ),
                     false

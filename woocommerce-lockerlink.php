@@ -3,7 +3,7 @@
  * Plugin Name: LockerLink
  * Plugin URI: https://joinlockerlink.com
  * Description: Connect your store to LockerLink smart locker pickup. Adds locker pickup shipping, auto-registers webhooks, and syncs assignment updates.
- * Version: 1.4.0
+ * Version: 1.4.1
  * Author: LockerLink
  * Author URI: https://joinlockerlink.com
  * License: GPL-2.0-or-later
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'LOCKERLINK_VERSION', '1.4.0' );
+define( 'LOCKERLINK_VERSION', '1.4.1' );
 define( 'LOCKERLINK_PLUGIN_FILE', __FILE__ );
 define( 'LOCKERLINK_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LOCKERLINK_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -174,7 +174,7 @@ add_action( 'before_woocommerce_init', 'lockerlink_declare_hpos_compatibility' )
  * Register custom "Awaiting Pickup" order status.
  */
 function lockerlink_register_order_status() {
-    register_post_status( 'wc-ll-awaiting-pickup', array(
+    register_post_status( 'wc-ll-pickup', array(
         'label'                     => _x( 'Awaiting Pickup', 'Order status', 'lockerlink' ),
         'public'                    => true,
         'exclude_from_search'       => false,
@@ -198,12 +198,58 @@ function lockerlink_add_order_status( $order_statuses ) {
     foreach ( $order_statuses as $key => $status ) {
         $new_statuses[ $key ] = $status;
         if ( 'wc-processing' === $key ) {
-            $new_statuses['wc-ll-awaiting-pickup'] = _x( 'Awaiting Pickup', 'Order status', 'lockerlink' );
+            $new_statuses['wc-ll-pickup'] = _x( 'Awaiting Pickup', 'Order status', 'lockerlink' );
         }
     }
     return $new_statuses;
 }
 add_filter( 'wc_order_statuses', 'lockerlink_add_order_status' );
+
+/**
+ * One-time migration: fix orders stuck in the truncated legacy status slug.
+ *
+ * The previous slug 'wc-ll-awaiting-pickup' (21 chars) exceeded the VARCHAR(20)
+ * limit of wp_posts.post_status and the HPOS wc_orders.status column, so saved
+ * orders were truncated to 'wc-ll-awaiting-picku' and no longer matched the
+ * registered status. Move any such orders to the current 'wc-ll-pickup' slug.
+ */
+function lockerlink_migrate_pickup_status() {
+    if ( get_option( 'lockerlink_pickup_status_migrated' ) ) {
+        return;
+    }
+
+    global $wpdb;
+
+    $old_status = 'wc-ll-awaiting-picku';
+    $new_status = 'wc-ll-pickup';
+
+    // Legacy post-based order storage.
+    $wpdb->update(
+        $wpdb->posts,
+        array( 'post_status' => $new_status ),
+        array( 'post_status' => $old_status ),
+        array( '%s' ),
+        array( '%s' )
+    );
+
+    // HPOS orders table, if present.
+    $orders_table = $wpdb->prefix . 'wc_orders';
+    $table_exists = $wpdb->get_var(
+        $wpdb->prepare( 'SHOW TABLES LIKE %s', $orders_table )
+    );
+    if ( $table_exists === $orders_table ) {
+        $wpdb->update(
+            $orders_table,
+            array( 'status' => $new_status ),
+            array( 'status' => $old_status ),
+            array( '%s' ),
+            array( '%s' )
+        );
+    }
+
+    update_option( 'lockerlink_pickup_status_migrated', 1 );
+}
+add_action( 'admin_init', 'lockerlink_migrate_pickup_status' );
 
 /**
  * Register the custom pickup-ready email with WooCommerce.
