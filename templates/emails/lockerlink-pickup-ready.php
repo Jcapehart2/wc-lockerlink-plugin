@@ -17,26 +17,14 @@ do_action( 'woocommerce_email_header', $email_heading, $email );
 
 <p>Hi <?php echo esc_html( $order->get_billing_first_name() ); ?>,</p>
 
-<p>Your order <strong>#<?php echo esc_html( $order->get_order_number() ); ?></strong> has been loaded into a smart locker and is ready for pickup.</p>
+<p>Your order <strong>#<?php echo esc_html( $order->get_order_number() ); ?></strong> is ready for pickup<?php echo ! empty( $locker_name ) ? ' at <strong>' . esc_html( $locker_name ) . '</strong>' : ''; ?>.</p>
 
-<?php if ( ! empty( $locker_name ) || ! empty( $compartment_label ) ) : ?>
-<table cellspacing="0" cellpadding="12" width="100%" style="border: 1px solid #e2e8f0; border-radius: 8px; border-collapse: separate; margin: 20px 0;">
-    <?php if ( ! empty( $locker_name ) ) : ?>
-    <tr>
-        <td style="background: #f0f4f8; <?php echo ! empty( $compartment_label ) ? 'border-bottom: 1px solid #e2e8f0;' : ''; ?> font-weight: 600; color: #5a6a7d; width: 140px;">Locker</td>
-        <td style="<?php echo ! empty( $compartment_label ) ? 'border-bottom: 1px solid #e2e8f0;' : ''; ?> color: #0d1b2a;"><?php echo esc_html( $locker_name ); ?></td>
-    </tr>
-    <?php endif; ?>
-    <?php if ( ! empty( $compartment_label ) ) : ?>
-    <tr>
-        <td style="background: #f0f4f8; font-weight: 600; color: #5a6a7d;">Compartment</td>
-        <td style="color: #0d1b2a;"><?php echo esc_html( $compartment_label ); ?></td>
-    </tr>
-    <?php endif; ?>
-</table>
+<?php if ( ! empty( $compartment_label ) ) : ?>
+<p>When you arrive, look for compartment <strong><?php echo esc_html( $compartment_label ); ?></strong>.</p>
 <?php endif; ?>
 
 <?php if ( ! empty( $pickup_url ) ) : ?>
+<p>Use the link below to unlock the locker when you're there:</p>
 <p style="text-align: center; margin: 28px 0;">
     <a href="<?php echo esc_url( $pickup_url ); ?>" style="display: inline-block; background-color: #00A8E8; color: #ffffff; font-size: 16px; font-weight: 700; padding: 14px 36px; border-radius: 8px; text-decoration: none;">Unlock &amp; Pick Up</a>
 </p>

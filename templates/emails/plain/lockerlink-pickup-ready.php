@@ -16,18 +16,15 @@ echo "= " . wp_strip_all_tags( $email_heading ) . " =\n\n";
 
 echo "Hi " . $order->get_billing_first_name() . ",\n\n";
 
-echo "Your order #" . $order->get_order_number() . " has been loaded into a smart locker and is ready for pickup.\n\n";
+$location = ! empty( $locker_name ) ? ' at ' . $locker_name : '';
+echo "Your order #" . $order->get_order_number() . " is ready for pickup" . $location . ".\n\n";
 
-if ( ! empty( $locker_name ) ) {
-    echo "Locker: " . $locker_name . "\n";
-}
 if ( ! empty( $compartment_label ) ) {
-    echo "Compartment: " . $compartment_label . "\n";
+    echo "When you arrive, look for compartment " . $compartment_label . ".\n\n";
 }
-echo "\n";
 
 if ( ! empty( $pickup_url ) ) {
-    echo "Pick up your order here: " . $pickup_url . "\n\n";
+    echo "Use this link to unlock the locker when you're there: " . $pickup_url . "\n\n";
 }
 
 echo "View your order: " . $order->get_view_order_url() . "\n";
