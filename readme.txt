@@ -6,7 +6,7 @@ Tested up to: 6.9
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.6
-Stable tag: 1.4.1
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,6 +57,9 @@ No. The plugin automatically creates and manages webhooks when you save your cre
 Yes. The plugin is fully compatible with WooCommerce High-Performance Order Storage.
 
 == Changelog ==
+
+= 1.5.0 =
+* Redesigned admin settings, order meta box, and customer pickup display.
 
 = 1.4.1 =
 * Fixed the "Awaiting Pickup" order status slug exceeding the database column limit, which caused loaded orders to lose their status. Existing affected orders are migrated automatically.

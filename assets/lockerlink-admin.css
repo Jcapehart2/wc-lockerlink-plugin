@@ -30,14 +30,23 @@
 
 .lockerlink-logo-section {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
 }
 
 .lockerlink-logo {
-    height: 60px;
+    height: 52px;
     width: auto;
     filter: brightness(0) invert(1);
+}
+
+.lockerlink-tagline {
+    margin: 0;
+    color: #B8C6D6;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
 }
 
 .lockerlink-connection-status {
@@ -84,12 +93,218 @@
     display: inline-block;
 }
 
+.lockerlink-status-paused {
+    background: rgba(255, 170, 0, 0.15);
+    color: #FFAA00;
+}
+
+.lockerlink-status-paused::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #FFAA00;
+    display: inline-block;
+}
+
 .lockerlink-settings-body {
     background: #fff;
     border: 1px solid #E2E8F0;
     border-top: none;
     border-radius: 0 0 16px 16px;
     padding: 24px 32px 32px;
+}
+
+/* Section titles */
+.lockerlink-section-title {
+    margin: 28px 0 4px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #F0F4F8;
+    color: #0D1B2A;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* How it works callout */
+.lockerlink-callout {
+    background: #F0F7FB;
+    border: 1px solid #D6E9F5;
+    border-left: 4px solid #00A8E8;
+    border-radius: 12px;
+    padding: 18px 22px 20px;
+}
+
+.lockerlink-callout-title {
+    margin: 0 0 12px;
+    color: #0D1B2A;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.lockerlink-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: none;
+}
+
+.lockerlink-steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0 0 12px;
+}
+
+.lockerlink-steps li:last-child {
+    margin-bottom: 0;
+}
+
+.lockerlink-step-num {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #00A8E8;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+}
+
+.lockerlink-step-text {
+    color: #1B2D45;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.lockerlink-step-text strong {
+    color: #0D1B2A;
+}
+
+/* Secret key reveal */
+.lockerlink-secret-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 420px;
+}
+
+.lockerlink-secret-field .lockerlink-input {
+    flex: 1 1 auto;
+}
+
+.lockerlink-reveal-btn {
+    flex: 0 0 auto;
+    background: #F0F4F8;
+    color: #5A6A7D;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.lockerlink-reveal-btn:hover {
+    background: #E2E8F0;
+    color: #0D1B2A;
+}
+
+/* Status pill (connection test result) */
+.lockerlink-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.lockerlink-pill-idle {
+    background: rgba(90, 106, 125, 0.1);
+    color: #5A6A7D;
+}
+
+.lockerlink-pill-testing {
+    background: rgba(0, 168, 232, 0.12);
+    color: #0077B6;
+}
+
+.lockerlink-pill-success {
+    background: rgba(0, 214, 143, 0.14);
+    color: #00B377;
+}
+
+.lockerlink-pill-error {
+    background: rgba(255, 77, 79, 0.12);
+    color: #FF4D4F;
+}
+
+/* Integration status panel */
+.lockerlink-status-panel {
+    margin-top: 12px;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.lockerlink-status-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid #F0F4F8;
+}
+
+.lockerlink-status-row:last-child {
+    border-bottom: none;
+}
+
+.lockerlink-status-dot {
+    flex: 0 0 auto;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #8899AA;
+}
+
+.lockerlink-status-dot.is-green {
+    background: #00D68F;
+    box-shadow: 0 0 0 3px rgba(0, 214, 143, 0.15);
+}
+
+.lockerlink-status-dot.is-amber {
+    background: #FFAA00;
+    box-shadow: 0 0 0 3px rgba(255, 170, 0, 0.15);
+}
+
+.lockerlink-status-dot.is-red {
+    background: #FF4D4F;
+    box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.15);
+}
+
+.lockerlink-status-dot.is-grey {
+    background: #B8C6D6;
+    box-shadow: 0 0 0 3px rgba(184, 198, 214, 0.2);
+}
+
+.lockerlink-status-key {
+    flex: 0 0 120px;
+    color: #5A6A7D;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.lockerlink-status-val {
+    color: #1B2D45;
+    font-size: 13px;
+    font-weight: 500;
 }
 
 /* Form fields */
@@ -305,6 +520,24 @@
 
 .lockerlink-meta-pickup-link {
     margin-top: 4px;
+}
+
+.lockerlink-meta-url {
+    display: block;
+    margin-top: 10px;
+    font-size: 11px;
+    line-height: 1.4;
+    word-break: break-all;
+}
+
+.lockerlink-meta-url a {
+    color: #5A6A7D;
+    text-decoration: none;
+}
+
+.lockerlink-meta-url a:hover {
+    color: #00A8E8;
+    text-decoration: underline;
 }
 
 .lockerlink-btn-primary {

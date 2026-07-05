@@ -27,6 +27,47 @@
     box-shadow: 0 2px 8px rgba(13, 27, 42, 0.06);
 }
 
+.lockerlink-pickup-status {
+    margin-bottom: 14px;
+}
+
+.lockerlink-pickup-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.lockerlink-pickup-pill::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    background: currentColor;
+}
+
+.lockerlink-pickup-pill.is-ready {
+    background: rgba(0, 214, 143, 0.14);
+    color: #00A56E;
+}
+
+.lockerlink-pickup-pill.is-pending {
+    background: rgba(255, 170, 0, 0.14);
+    color: #B37A00;
+}
+
+.lockerlink-pickup-intro {
+    margin: 0 0 20px;
+    color: #5A6A7D;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
 .lockerlink-pickup-details {
     margin-bottom: 20px;
 }

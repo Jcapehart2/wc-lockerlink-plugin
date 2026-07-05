@@ -34,22 +34,50 @@ class LockerLink_Settings {
         $enabled     = get_option( 'lockerlink_enabled', 'yes' );
 
         $is_configured = ! empty( $webhook_url ) && ! empty( $api_key );
+        $is_enabled    = ( $enabled === 'yes' );
+
+        $webhook_ids   = (array) get_option( 'lockerlink_webhook_ids', array() );
+        $webhook_count = count( array_filter( $webhook_ids ) );
+        $last_delivery = get_option( 'lockerlink_last_webhook_delivery', 0 );
+
+        // Header status badge reflects overall readiness.
+        if ( $is_configured && $is_enabled ) {
+            $header_badge_class = 'lockerlink-status-connected';
+            $header_badge_text  = 'Connected';
+        } elseif ( $is_configured && ! $is_enabled ) {
+            $header_badge_class = 'lockerlink-status-paused';
+            $header_badge_text  = 'Paused';
+        } else {
+            $header_badge_class = 'lockerlink-status-disconnected';
+            $header_badge_text  = 'Not Configured';
+        }
         ?>
         <div class="lockerlink-settings-wrap">
             <div class="lockerlink-settings-header">
                 <div class="lockerlink-logo-section">
                     <img src="<?php echo esc_url( LOCKERLINK_PLUGIN_URL . 'assets/lockerlink-logo.png' ); ?>" alt="LockerLink" class="lockerlink-logo" />
+                    <p class="lockerlink-tagline">Smart locker pickup for your WooCommerce store</p>
                 </div>
                 <div class="lockerlink-connection-status">
-                    <?php if ( $is_configured ) : ?>
-                        <span class="lockerlink-status-badge lockerlink-status-connected">Connected</span>
-                    <?php else : ?>
-                        <span class="lockerlink-status-badge lockerlink-status-disconnected">Not Configured</span>
-                    <?php endif; ?>
+                    <span class="lockerlink-status-badge <?php echo esc_attr( $header_badge_class ); ?>"><?php echo esc_html( $header_badge_text ); ?></span>
                 </div>
             </div>
 
             <div class="lockerlink-settings-body">
+
+                <!-- How it works -->
+                <div class="lockerlink-callout">
+                    <h3 class="lockerlink-callout-title">How it works</h3>
+                    <ol class="lockerlink-steps">
+                        <li><span class="lockerlink-step-num">1</span><span class="lockerlink-step-text">Copy your <strong>Webhook URL</strong> and <strong>Secret Key</strong> from the <em>Integrations</em> page of your LockerLink dashboard.</span></li>
+                        <li><span class="lockerlink-step-num">2</span><span class="lockerlink-step-text">Paste them below, turn the integration on, and save. LockerLink registers the required webhooks automatically.</span></li>
+                        <li><span class="lockerlink-step-num">3</span><span class="lockerlink-step-text">Add <strong>Locker Pickup</strong> as a method in your WooCommerce shipping zones so customers can choose it at checkout.</span></li>
+                        <li><span class="lockerlink-step-num">4</span><span class="lockerlink-step-text">When you assign a compartment in LockerLink, the customer is emailed pickup details automatically.</span></li>
+                    </ol>
+                </div>
+
+                <!-- Connection settings -->
+                <h3 class="lockerlink-section-title">Connection settings</h3>
                 <table class="form-table lockerlink-form-table">
                     <tr>
                         <th scope="row">
@@ -60,7 +88,7 @@ class LockerLink_Settings {
                                 <input type="checkbox" id="lockerlink_enabled" name="lockerlink_enabled" value="yes" <?php checked( $enabled, 'yes' ); ?> />
                                 <span class="lockerlink-toggle-slider"></span>
                             </label>
-                            <p class="description">Enable or disable the LockerLink integration.</p>
+                            <p class="description">Turn LockerLink on or off. While off, no order data is sent and incoming updates are rejected.</p>
                         </td>
                     </tr>
                     <tr>
@@ -72,7 +100,7 @@ class LockerLink_Settings {
                                    value="<?php echo esc_attr( $webhook_url ); ?>"
                                    class="regular-text lockerlink-input"
                                    placeholder="https://your-server.com/api/webhooks/woocommerce/ll_id_..." />
-                            <p class="description">Copy the full Webhook URL from your LockerLink Integrations page.</p>
+                            <p class="description">Find this on your LockerLink dashboard under <strong>Integrations</strong>. Copy the full URL exactly as shown.</p>
                         </td>
                     </tr>
                     <tr>
@@ -80,11 +108,14 @@ class LockerLink_Settings {
                             <label for="lockerlink_api_key">Secret Key</label>
                         </th>
                         <td>
-                            <input type="password" id="lockerlink_api_key" name="lockerlink_api_key"
-                                   value="<?php echo esc_attr( $api_key ); ?>"
-                                   class="regular-text lockerlink-input"
-                                   placeholder="ll_sk_..." />
-                            <p class="description">Your secret key from LockerLink's Integrations page. Used for webhook signing.</p>
+                            <div class="lockerlink-secret-field">
+                                <input type="password" id="lockerlink_api_key" name="lockerlink_api_key"
+                                       value="<?php echo esc_attr( $api_key ); ?>"
+                                       class="regular-text lockerlink-input"
+                                       placeholder="ll_sk_..." autocomplete="off" spellcheck="false" />
+                                <button type="button" id="lockerlink-reveal-key" class="lockerlink-reveal-btn" aria-label="Show secret key" aria-pressed="false">Show</button>
+                            </div>
+                            <p class="description">Also on the <strong>Integrations</strong> page. Used to securely sign webhook traffic &mdash; keep it private.</p>
                         </td>
                     </tr>
                 </table>
@@ -93,7 +124,51 @@ class LockerLink_Settings {
                     <button type="button" id="lockerlink-test-connection" class="button lockerlink-btn-secondary" <?php echo $is_configured ? '' : 'disabled'; ?>>
                         Test Connection
                     </button>
-                    <span id="lockerlink-test-result"></span>
+                    <span id="lockerlink-test-result" class="lockerlink-pill lockerlink-pill-idle" aria-live="polite">Not tested yet</span>
+                </div>
+
+                <!-- Integration status -->
+                <h3 class="lockerlink-section-title">Integration status</h3>
+                <div class="lockerlink-status-panel">
+                    <div class="lockerlink-status-row">
+                        <span class="lockerlink-status-dot <?php echo $is_enabled ? 'is-green' : 'is-amber'; ?>"></span>
+                        <span class="lockerlink-status-key">Plugin</span>
+                        <span class="lockerlink-status-val"><?php echo $is_enabled ? 'Enabled' : 'Disabled'; ?></span>
+                    </div>
+                    <div class="lockerlink-status-row">
+                        <span class="lockerlink-status-dot <?php echo $is_configured ? 'is-green' : 'is-red'; ?>"></span>
+                        <span class="lockerlink-status-key">Credentials</span>
+                        <span class="lockerlink-status-val"><?php echo $is_configured ? 'Configured' : 'Missing &mdash; add your URL and key above'; ?></span>
+                    </div>
+                    <div class="lockerlink-status-row">
+                        <span class="lockerlink-status-dot <?php echo ( $webhook_count > 0 ) ? 'is-green' : ( $is_configured ? 'is-amber' : 'is-grey' ); ?>"></span>
+                        <span class="lockerlink-status-key">Webhooks</span>
+                        <span class="lockerlink-status-val">
+                            <?php
+                            if ( $webhook_count > 0 ) {
+                                echo esc_html( sprintf( _n( '%d webhook active', '%d webhooks active', $webhook_count, 'lockerlink' ), $webhook_count ) );
+                            } elseif ( $is_configured ) {
+                                echo 'Not registered yet &mdash; save settings to register';
+                            } else {
+                                echo 'Waiting for credentials';
+                            }
+                            ?>
+                        </span>
+                    </div>
+                    <div class="lockerlink-status-row">
+                        <span class="lockerlink-status-dot <?php echo $last_delivery ? 'is-green' : 'is-grey'; ?>"></span>
+                        <span class="lockerlink-status-key">Last activity</span>
+                        <span class="lockerlink-status-val">
+                            <?php
+                            if ( $last_delivery ) {
+                                /* translators: %s: human-readable time difference, e.g. "5 minutes" */
+                                echo esc_html( sprintf( __( '%s ago', 'lockerlink' ), human_time_diff( $last_delivery, current_time( 'timestamp' ) ) ) );
+                            } else {
+                                echo 'No orders sent to LockerLink yet';
+                            }
+                            ?>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -108,32 +183,48 @@ class LockerLink_Settings {
             }
             $('#lockerlink_webhook_url, #lockerlink_api_key').on('input', checkFields);
 
+            // Reveal / hide secret key.
+            $('#lockerlink-reveal-key').on('click', function() {
+                var $field = $('#lockerlink_api_key');
+                var reveal = $field.attr('type') === 'password';
+                $field.attr('type', reveal ? 'text' : 'password');
+                $(this).text(reveal ? 'Hide' : 'Show')
+                       .attr('aria-pressed', reveal ? 'true' : 'false')
+                       .attr('aria-label', reveal ? 'Hide secret key' : 'Show secret key');
+            });
+
+            // Render the test result as a status pill.
+            function setPill($el, state, text) {
+                $el.removeClass('lockerlink-pill-idle lockerlink-pill-testing lockerlink-pill-success lockerlink-pill-error')
+                   .addClass('lockerlink-pill-' + state)
+                   .text(text);
+            }
+
             // Test connection AJAX.
             $('#lockerlink-test-connection').on('click', function() {
                 var $btn = $(this);
                 var $result = $('#lockerlink-test-result');
+                var $badge = $('.lockerlink-connection-status .lockerlink-status-badge');
 
                 $btn.prop('disabled', true).text('Testing...');
-                $result.html('');
-
-                var $badge = $('.lockerlink-connection-status .lockerlink-status-badge');
+                setPill($result, 'testing', 'Testing…');
 
                 $.post(ajaxurl, {
                     action: 'lockerlink_test_connection',
-                    nonce: '<?php echo wp_create_nonce( 'lockerlink_test_connection' ); ?>',
+                    nonce: '<?php echo esc_js( wp_create_nonce( 'lockerlink_test_connection' ) ); ?>',
                     webhook_url: $('#lockerlink_webhook_url').val().trim()
                 }, function(response) {
                     if (response.success) {
-                        $result.html('<span class="lockerlink-test-success">&#10003; Connection successful</span>');
-                        $badge.removeClass('lockerlink-status-disconnected').addClass('lockerlink-status-connected').text('Connected');
+                        setPill($result, 'success', '✓ Connected');
+                        $badge.removeClass('lockerlink-status-disconnected lockerlink-status-paused').addClass('lockerlink-status-connected').text('Connected');
                     } else {
-                        $result.html('<span class="lockerlink-test-error">&#10007; ' + (response.data || 'Connection failed') + '</span>');
-                        $badge.removeClass('lockerlink-status-connected').addClass('lockerlink-status-disconnected').text('Connection Failed');
+                        setPill($result, 'error', '✗ ' + (response.data || 'Connection failed'));
+                        $badge.removeClass('lockerlink-status-connected lockerlink-status-paused').addClass('lockerlink-status-disconnected').text('Connection Failed');
                     }
                     $btn.prop('disabled', false).text('Test Connection');
                 }).fail(function() {
-                    $result.html('<span class="lockerlink-test-error">&#10007; Request failed</span>');
-                    $badge.removeClass('lockerlink-status-connected').addClass('lockerlink-status-disconnected').text('Connection Failed');
+                    setPill($result, 'error', '✗ Request failed');
+                    $badge.removeClass('lockerlink-status-connected lockerlink-status-paused').addClass('lockerlink-status-disconnected').text('Connection Failed');
                     $btn.prop('disabled', false).text('Test Connection');
                 });
             });

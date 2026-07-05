@@ -25,6 +25,26 @@ class LockerLink_Webhooks {
      */
     public static function init() {
         add_filter( 'woocommerce_webhook_should_deliver', array( __CLASS__, 'filter_webhook_delivery' ), 10, 3 );
+        add_action( 'woocommerce_webhook_delivery', array( __CLASS__, 'record_delivery' ), 10, 5 );
+    }
+
+    /**
+     * Record the timestamp of the most recent delivery for one of our webhooks.
+     *
+     * Powers the "Last activity" row on the settings screen. Purely informational;
+     * does not affect delivery behaviour.
+     *
+     * @param array  $http_args  Delivery request args.
+     * @param mixed  $response    HTTP response or WP_Error.
+     * @param float  $duration    Request duration.
+     * @param mixed  $arg         The resource ID.
+     * @param int    $webhook_id  The delivering webhook's ID.
+     */
+    public static function record_delivery( $http_args, $response, $duration, $arg, $webhook_id ) {
+        $our_ids = (array) get_option( self::OPTION_KEY, array() );
+        if ( in_array( $webhook_id, $our_ids, true ) ) {
+            update_option( 'lockerlink_last_webhook_delivery', time() );
+        }
     }
 
     /**

@@ -108,6 +108,7 @@ class LockerLink_Order_Meta {
         if ( ! empty( $pickup_url ) ) {
             echo '<div class="lockerlink-meta-pickup-link">';
             echo '<a href="' . esc_url( $pickup_url ) . '" target="_blank" rel="noopener noreferrer" class="button lockerlink-btn-primary">Open Pickup Page</a>';
+            echo '<span class="lockerlink-meta-url"><a href="' . esc_url( $pickup_url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $pickup_url ) . '</a></span>';
             echo '</div>';
         }
 
@@ -130,10 +131,20 @@ class LockerLink_Order_Meta {
             return;
         }
 
+        $ready = in_array( $status, array( 'loaded', 'notified' ), true );
+        $intro = $ready
+            ? 'Your order is ready! Use the button below to unlock your compartment and collect your items.'
+            : 'A locker has been reserved for your order. We\'ll email you the moment it\'s ready to collect.';
         ?>
         <div class="lockerlink-customer-pickup">
             <h2>Locker Pickup Details</h2>
             <div class="lockerlink-pickup-card">
+                <div class="lockerlink-pickup-status">
+                    <span class="lockerlink-pickup-pill <?php echo $ready ? 'is-ready' : 'is-pending'; ?>">
+                        <?php echo $ready ? 'Ready for pickup' : 'Reserved'; ?>
+                    </span>
+                </div>
+                <p class="lockerlink-pickup-intro"><?php echo esc_html( $intro ); ?></p>
                 <div class="lockerlink-pickup-details">
                     <?php if ( ! empty( $locker ) ) : ?>
                         <div class="lockerlink-pickup-row">

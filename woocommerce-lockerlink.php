@@ -3,7 +3,7 @@
  * Plugin Name: LockerLink
  * Plugin URI: https://joinlockerlink.com
  * Description: Connect your store to LockerLink smart locker pickup. Adds locker pickup shipping, auto-registers webhooks, and syncs assignment updates.
- * Version: 1.4.1
+ * Version: 1.5.0
  * Author: LockerLink
  * Author URI: https://joinlockerlink.com
  * License: GPL-2.0-or-later
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'LOCKERLINK_VERSION', '1.4.1' );
+define( 'LOCKERLINK_VERSION', '1.5.0' );
 define( 'LOCKERLINK_PLUGIN_FILE', __FILE__ );
 define( 'LOCKERLINK_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LOCKERLINK_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -154,7 +154,7 @@ add_action( 'wp_enqueue_scripts', 'lockerlink_frontend_assets' );
  * Add settings link on the plugins page.
  */
 function lockerlink_plugin_action_links( $links ) {
-    $settings_link = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=lockerlink' ) . '">Settings</a>';
+    $settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=lockerlink' ) ) . '" style="font-weight:600;">' . esc_html__( 'Settings', 'lockerlink' ) . '</a>';
     array_unshift( $links, $settings_link );
     return $links;
 }
